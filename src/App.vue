@@ -1,17 +1,21 @@
 <template>
   <div id="app">
-    <a-row type="flex" align="top">
-      <a-col flex="750px">
-        <WebCam @takePicture="takePicture"></WebCam>
-      </a-col>
-      <a-col flex="auto">
-        <a-upload :file-list="fileList" :before-upload="beforeUpload">
-          <a-button type="primary" shape="round" icon="upload" size="large"
-            >上传照片</a-button
-          >
-        </a-upload>
-      </a-col>
-    </a-row>
+    <WebCam @takePicture="takePicture" class="webcam-container"></WebCam>
+
+    <div class="picture-container">
+      <a-upload :before-upload="beforeUpload" :showUploadList="false">
+        <a-button class="btn-upload-picture" type="primary" shape="round" icon="upload" size="large"
+          >上传照片</a-button
+        >
+      </a-upload>
+      <div>
+        <div class="card-box" v-for="item in fileList" :key="item.uid">
+          <div>照片{{ item.uid }} {{ item.name }}</div>
+          <img class="card-image" :src="item.url" :alt="item.name" />
+        </div>
+      </div>
+    </div>
+
     <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
       <img alt="example" style="width: 100%" :src="previewImage" />
     </a-modal>
@@ -21,7 +25,15 @@
 <script>
 import WebCam from "./components/WebCam.vue";
 
-function convertFileToImage(file) {}
+function convertFileToImage(file) {
+  const img = document.createElement("img");
+  const src = URL.createObjectURL(file);
+  img.src = src;
+  img.onload = function () {
+    URL.revokeObjectURL(src);
+  };
+  return img;
+}
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -68,23 +80,30 @@ export default {
     },
     beforeUpload(file) {
       console.log("beforeUpload :>> ", file);
-      getBase64(file).then((url) => {
-        file.thumbUrl = url;
-        this.fileList = [...this.fileList, file];
-      });
+      const image = convertFileToImage(file);
+      this.fileList = [
+        ...this.fileList,
+        {
+          uid: uid(),
+          name: file.name,
+          url: image.src,
+          image: image,
+        },
+      ];
       console.log("this.fileList :>> ", this.fileList);
       return false;
     },
     takePicture(image) {
       console.log("take Picture :>> ", image);
+      const imgObj = new Image();
+      imgObj.src = image;
       this.fileList = [
         ...this.fileList,
         {
           uid: uid(),
           name: "take picture",
-          status: "done",
           url: image,
-          thumbUrl: image,
+          image: imgObj,
         },
       ];
     },
@@ -98,5 +117,22 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #333;
+}
+.webcam-container {
+  float: left;
+}
+.picture-container {
+  overflow: hidden;
+}
+.card-box {
+  float: left;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+.card-image {
+  max-height: 240px;
+}
+.btn-upload-picture {
+  margin: 20px 0;
 }
 </style>

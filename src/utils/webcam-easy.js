@@ -1,5 +1,5 @@
 export default class Webcam {
-  constructor(webcamElement, facingMode = 'user', canvasElement = null, snapSoundElement = null) {
+  constructor(webcamElement, facingMode = 'enviroment', canvasElement = null, snapSoundElement = null) {
     this._webcamElement = webcamElement;
     this._webcamElement.width = this._webcamElement.width || 640;
     this._webcamElement.height = this._webcamElement.height || this._webcamElement.width * (3 / 4);
@@ -39,9 +39,9 @@ export default class Webcam {
         this._webcamList.push(mediaDevice);
       }
     });
-    if(this._webcamList.length == 1){
-      this._facingMode = 'user';
-    }
+    // if(this._webcamList.length == 1){
+    //   this._facingMode = 'user';
+    // }
     return this._webcamList;
   }
 

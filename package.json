@@ -10,8 +10,7 @@
     "core-js": "^3.6.5",
     "face-api.js": "^0.22.2",
     "vue": "^2.6.11",
-    "vuex": "^3.4.0",
-    "webcam-easy": "^1.0.5"
+    "vuex": "^3.4.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

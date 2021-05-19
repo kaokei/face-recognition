@@ -4,9 +4,20 @@ import store from "./store";
 
 Vue.config.productionTip = false;
 
-import { Button, Row, Col, Upload, Icon, Modal } from "ant-design-vue";
+import {
+  Button,
+  Row,
+  Col,
+  Upload,
+  Icon,
+  Modal,
+  List,
+  Card
+} from "ant-design-vue";
 
-[Button, Row, Col, Upload, Icon, Modal].forEach(item => Vue.use(item));
+[Button, Row, Col, Upload, Icon, Modal, List, Card].forEach(item =>
+  Vue.use(item)
+);
 
 new Vue({
   store,
