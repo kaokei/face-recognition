@@ -61,7 +61,9 @@ export default {
     ]).then(this.startVideo);
   },
   destroyed() {
-    this.timer && clearInterval(this.timer);
+    this.timer &&
+      window.cancelAnimationFrame &&
+      window.cancelAnimationFrame(this.timer);
     this.video.removeEventListener("play", this.onPlay);
     this.webcam.stop();
   },
@@ -135,7 +137,7 @@ export default {
       faceapi.draw.drawDetections(canvas, resizedDetections);
       faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
       faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
-      window.requestAnimationFrame(this.onDetectRender);
+      this.timer = window.requestAnimationFrame(this.onDetectRender);
     },
   },
 };
