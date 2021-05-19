@@ -38,10 +38,12 @@ export default {
   data() {
     return {
       video: null,
-      canvas: null,
+      canvas: null, // 这个canvas是webcam需要拍照使用的
+      detectCanvas: null, // 这个canvas是人脸识别渲染landmarks的
       snapSound: null,
       timer: null,
       webcam: null,
+      displaySize: null,
     };
   },
   mounted() {
@@ -84,12 +86,6 @@ export default {
         this.matchImages.forEach((imageObj) => {
           if (imageObj.descriptor) {
             const bestMatch = faceMatcher.findBestMatch(imageObj.descriptor);
-            console.log(
-              "bestMatch.toString() ",
-              bestMatch.toString(),
-              bestMatch,
-              imageObj
-            );
             if (bestMatch) {
               imageObj.distance = bestMatch.distance.toFixed(2);
             }
@@ -116,28 +112,30 @@ export default {
         });
     },
     onPlay() {
-      console.log("onPlay :>> ");
-      const canvas = faceapi.createCanvasFromMedia(this.video);
-      this.$el.append(canvas);
-      const displaySize = {
+      this.detectCanvas = faceapi.createCanvasFromMedia(this.video);
+      this.$el.append(this.detectCanvas);
+      this.displaySize = {
         width: this.video.width,
         height: this.video.height,
       };
-      faceapi.matchDimensions(canvas, displaySize);
-      setInterval(async () => {
-        const detections = await faceapi
-          .detectAllFaces(this.video, new faceapi.TinyFaceDetectorOptions())
-          .withFaceLandmarks()
-          .withFaceExpressions();
-        const resizedDetections = faceapi.resizeResults(
-          detections,
-          displaySize
-        );
-        canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-        faceapi.draw.drawDetections(canvas, resizedDetections);
-        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-        faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
-      }, 2000);
+      faceapi.matchDimensions(this.detectCanvas, this.displaySize);
+      this.onDetectRender();
+    },
+    async onDetectRender() {
+      const canvas = this.detectCanvas;
+      const detections = await faceapi
+        .detectAllFaces(this.video, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceExpressions();
+      const resizedDetections = faceapi.resizeResults(
+        detections,
+        this.displaySize
+      );
+      canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+      faceapi.draw.drawDetections(canvas, resizedDetections);
+      faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+      faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+      window.requestAnimationFrame(this.onDetectRender);
     },
   },
 };
